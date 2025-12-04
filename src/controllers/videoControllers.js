@@ -15,6 +15,7 @@ import Video from "../models/video";
 
 export const home = async (req, res) => {
   const videos = await Video.find({});
+  console.log(videos);
   return res.render("home", { pageTitle: "Home", videos });
 };
 
@@ -44,10 +45,11 @@ export const upload = (req, res) => res.send("Upload Video");
 export const getUpload = (req, res) => {
   res.render("upload", { pageTitle: "Upload Video" });
 };
-export const postUpload = (req, res) => {
+export const postUpload = async (req, res) => {
   //here we will add a video to the videos array
   const { title, description, hashtags } = req.body;
-  const video = new Video({
+  // const video = new Video({
+  await Video.create({
     title,
     description,
     createdAt: Date.now(),
@@ -57,6 +59,6 @@ export const postUpload = (req, res) => {
       rating: 0,
     },
   });
-  console.log(video);
+  // const dbVideo = await video.save();
   res.redirect("/");
 };
