@@ -1,15 +1,28 @@
-import e from "express";
+import express from "express";
 import Video from "../models/video";
 
-export const home = (req, res) => {
-  console.log("start");
-  Video.find({}, (error, videos) => {
-    if (error) {
-      return res.render("server-error");
-    }
+// export const home = (req, res) => {
+//   console.log("start");
+//   Video.find({}, (error, videos) => {
+//     if (error) {
+//       return res.render("server-error");
+//     }
+//     console.log("hello");
+//     return res.render("home", { pageTitle: "Home", videos });
+//   });
+//   console.log("i finish first");
+// };
+
+export const home = async (req, res) => {
+  try {
+    console.log("start");
+    const videos = await Video.find({});
+    console.log("finished");
+    console.log(videos);
     return res.render("home", { pageTitle: "Home", videos });
-  });
-  console.log("i finish first");
+  } catch {
+    res.render("server-error");
+  }
 };
 
 export const watch = (req, res) => {
