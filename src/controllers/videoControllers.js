@@ -1,16 +1,17 @@
+import e from "express";
 import Video from "../models/video";
 
-const handleSearch = (err, videos) => {
-  console.log("errs", err);
-  console.log("videos", videos);
+export const home = (req, res) => {
+  console.log("start");
+  Video.find({}, (error, videos) => {
+    if (error) {
+      return res.render("server-error");
+    }
+    return res.render("home", { pageTitle: "Home", videos });
+  });
+  console.log("i finish first");
 };
 
-export const home = (req, res) => {
-  console.log("Starting Search");
-  Video.find({}, handleSearch);
-  console.log("I should be the last one");
-  res.render("home", { pageTitle: "Home", videos: [] });
-};
 export const watch = (req, res) => {
   const id = req.params.id;
   res.render("watch", { pageTitle: `Watching` });
