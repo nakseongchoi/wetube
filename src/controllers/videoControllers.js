@@ -1,5 +1,5 @@
 import express from "express";
-import Video, { formatHashtags } from "../models/video";
+import Video from "../models/video";
 
 export const home = async (req, res) => {
   const videos = await Video.find({});
@@ -36,7 +36,7 @@ export const postEdit = async (req, res) => {
   await Video.findByIdAndUpdate(id, {
     title,
     description,
-    hashtags: formatHashtags(hashtags),
+    hashtags: Video.formatHashtags(hashtags),
   });
   // video.title = title; 위에 것과 같음
   // video.description = description;
@@ -47,9 +47,10 @@ export const postEdit = async (req, res) => {
   res.redirect(`/videos/${id}`);
 };
 
-export const search = (req, res) => res.send("Search Videos");
-export const deleteVideo = (req, res) => {
-  res.send(`Delete Video #${req.params.id}`);
+export const deleteVideo = async (req, res) => {
+  const id = req.params.id;
+  await Video.findByIdAndDelete(id);
+  return res.redirect("/");
 };
 
 export const upload = (req, res) => res.send("Upload Video");
@@ -64,7 +65,7 @@ export const postUpload = async (req, res) => {
       title,
       description,
       // createdAt: Date.now(),
-      hashtags: formatHashtags(hashtags),
+      hashtags: Video.formatHashtags(hashtags),
       // meta: {
       //   views: 0,
       //   rating: 0,
