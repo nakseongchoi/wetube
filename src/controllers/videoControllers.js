@@ -1,37 +1,51 @@
 import express from "express";
 import Video from "../models/video";
 
-// export const home = (req, res) => {
-//   console.log("start");
-//   Video.find({}, (error, videos) => {
-//     if (error) {
-//       return res.render("server-error");
-//     }
-//     console.log("hello");
-//     return res.render("home", { pageTitle: "Home", videos });
-//   });
-//   console.log("i finish first");
-// };
-
 export const home = async (req, res) => {
   const videos = await Video.find({});
   console.log(videos);
   return res.render("home", { pageTitle: "Home", videos });
 };
 
-export const watch = (req, res) => {
+export const watch = async (req, res) => {
   const id = req.params.id;
-  res.render("watch", { pageTitle: `Watching` });
+  const video = await Video.findById(id);
+  if (!video) {
+    return res.render("404", { pageTitle: "Video not found" });
+  }
+  return res.render("watch", { pageTitle: video.title, video });
 };
 
-export const getEdit = (req, res) => {
+export const getEdit = async (req, res) => {
   const id = req.params.id;
-  const video = videos[id - 1];
-  res.render("edit", { pageTitle: `Editing` });
+  const video = await Video.findById(id);
+  if (!video) {
+    return res.render("404", { pageTitle: "Video not found" });
+  }
+  return res.render("edit", { pageTitle: `edit ${video.title}`, video });
 };
-export const postEdit = (req, res) => {
+export const postEdit = async (req, res) => {
   const id = req.params.id;
-  const title = req.body.title;
+  const { title, description, hashtags } = req.body;
+  console.log(req.body);
+  const video = await Video.exists({ _id: id });
+  // const video = await Video.findById(id); 같은거임
+  if (!video) {
+    return res.render("404", { pageTitle: "Video not found" });
+  }
+  await Video.findByIdAndUpdate(id, {
+    title,
+    description,
+    hashtags: hashtags
+      .split(", ")
+      .map((word) => (word.startsWith(`#`) ? word : `#${word}`)),
+  });
+  // video.title = title; 위에 것과 같음
+  // video.description = description;
+  // video.hashtags = hashtags
+  //   .split(", ")
+  //   .map((word) => (word.startsWith(`#`) ? word : `#${word}`));
+  // await video.save();
   res.redirect(`/videos/${id}`);
 };
 
@@ -52,13 +66,14 @@ export const postUpload = async (req, res) => {
       title,
       description,
       // createdAt: Date.now(),
-      hashtags: hashtags.split(",").map((word) => `#${word}`),
+      hashtags,
       // meta: {
       //   views: 0,
       //   rating: 0,
       // },
     });
     return res.redirect("/");
+    console.log(videos[0], hahtags);
   } catch (error) {
     console.log(error);
     return res.render("upload", {
