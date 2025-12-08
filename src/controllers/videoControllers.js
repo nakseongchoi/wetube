@@ -1,5 +1,5 @@
 import express from "express";
-import Video from "../models/video";
+import Video, { formatHashtags } from "../models/video";
 
 export const home = async (req, res) => {
   const videos = await Video.find({});
@@ -36,9 +36,7 @@ export const postEdit = async (req, res) => {
   await Video.findByIdAndUpdate(id, {
     title,
     description,
-    hashtags: hashtags
-      .split(", ")
-      .map((word) => (word.startsWith(`#`) ? word : `#${word}`)),
+    hashtags: formatHashtags(hashtags),
   });
   // video.title = title; 위에 것과 같음
   // video.description = description;
@@ -66,7 +64,7 @@ export const postUpload = async (req, res) => {
       title,
       description,
       // createdAt: Date.now(),
-      hashtags,
+      hashtags: formatHashtags(hashtags),
       // meta: {
       //   views: 0,
       //   rating: 0,
