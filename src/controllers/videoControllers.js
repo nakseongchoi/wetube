@@ -2,7 +2,7 @@ import express from "express";
 import Video from "../models/video";
 
 export const home = async (req, res) => {
-  const videos = await Video.find({});
+  const videos = await Video.find({}).sort({ createdAt: "desc" });
   console.log(videos);
   return res.render("home", { pageTitle: "Home", videos });
 };
@@ -14,6 +14,35 @@ export const watch = async (req, res) => {
     return res.render("404", { pageTitle: "Video not found" });
   }
   return res.render("watch", { pageTitle: video.title, video });
+};
+
+export const upload = (req, res) => res.send("Upload Video");
+
+export const getUpload = (req, res) => {
+  res.render("upload", { pageTitle: "Upload Video" });
+};
+export const postUpload = async (req, res) => {
+  const { title, description, hashtags } = req.body;
+  try {
+    await Video.create({
+      title,
+      description,
+      // createdAt: Date.now(),
+      hashtags: Video.formatHashtags(hashtags),
+      // meta: {
+      //   views: 0,
+      //   rating: 0,
+      // },
+    });
+    return res.redirect("/");
+    console.log(videos[0], hahtags);
+  } catch (error) {
+    console.log(error);
+    return res.render("upload", {
+      pageTitle: "Upload Video",
+      errorMessage: error._message,
+    });
+  }
 };
 
 export const getEdit = async (req, res) => {
@@ -53,31 +82,15 @@ export const deleteVideo = async (req, res) => {
   return res.redirect("/");
 };
 
-export const upload = (req, res) => res.send("Upload Video");
-
-export const getUpload = (req, res) => {
-  res.render("upload", { pageTitle: "Upload Video" });
-};
-export const postUpload = async (req, res) => {
-  const { title, description, hashtags } = req.body;
-  try {
-    await Video.create({
-      title,
-      description,
-      // createdAt: Date.now(),
-      hashtags: Video.formatHashtags(hashtags),
-      // meta: {
-      //   views: 0,
-      //   rating: 0,
-      // },
-    });
-    return res.redirect("/");
-    console.log(videos[0], hahtags);
-  } catch (error) {
-    console.log(error);
-    return res.render("upload", {
-      pageTitle: "Upload Video",
-      errorMessage: error._message,
+export const search = async (req, res) => {
+  const keyword = req.query.keyword;
+  let videos = [];
+  if (keyword) {
+    videos = await Video.find({
+      title: {
+        $regex: new RegExp(keyword, "i"),
+      },
     });
   }
+  return res.render("search", { pageTitle: "Search", videos });
 };
