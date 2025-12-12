@@ -11,7 +11,7 @@ export const watch = async (req, res) => {
   const id = req.params.id;
   const video = await Video.findById(id);
   if (!video) {
-    return res.render("404", { pageTitle: "Video not found" });
+    return res.status(404).render("404", { pageTitle: "Video not found" });
   }
   return res.render("watch", { pageTitle: video.title, video });
 };
@@ -38,7 +38,7 @@ export const postUpload = async (req, res) => {
     console.log(videos[0], hahtags);
   } catch (error) {
     console.log(error);
-    return res.render("upload", {
+    return res.status(400).render("upload", {
       pageTitle: "Upload Video",
       errorMessage: error._message,
     });
